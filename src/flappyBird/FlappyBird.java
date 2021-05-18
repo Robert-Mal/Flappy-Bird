@@ -14,23 +14,23 @@ import java.util.Scanner;
 public class FlappyBird implements ActionListener, MouseListener {
     public static FlappyBird flappyBird;
 
-    public final int WIDTH = 480, HEIGHT = 640;
+  private final int WIDTH = 480, HEIGHT = 640;
 
-    public Renderer renderer;
+  private Renderer renderer;
 
-    public int ticks, yMotion, score;
+  private int ticks, yMotion, score;
 
-    public ArrayList<Column> columns;
+  private ArrayList<Column> columns;
 
-    public Random rand;
+  private Random rand;
 
-    public boolean gameOver, started;
+  private boolean isGameOver, isGameStarted;
 
-    private final Image background, ground;
+  private final Image background, ground;
 
-    private final Bird bird;
+  private final Bird bird;
 
-    private Column columnTemp;
+  private Column columnTemp;
 
     public FlappyBird() {
         JFrame jFrame = new JFrame();
@@ -71,26 +71,26 @@ public class FlappyBird implements ActionListener, MouseListener {
         int height = rand.nextInt(250) - 250;
 
         if (start) {
-            columns.add(new Column(WIDTH + columnTemp.width + columns.size() * 300, height));
+            columns.add(new Column(WIDTH + columnTemp.getWidth() + columns.size() * 300, height));
         } else {
-            columns.add(new Column(columns.get(columns.size() - 1).x + 300, height));
+            columns.add(new Column(columns.get(columns.size() - 1).getX() + 300, height));
         }
 
     }
 
     public void paintColumn(Graphics g, Column column) {
-        g.drawImage(column.image, column.x, column.y, null);
-        g.drawImage(column.rotatedImage, column.bottomX, column.bottomY, null);
+        g.drawImage(column.getImage(), column.getX(), column.getY(), null);
+        g.drawImage(column.getRotatedImage(), column.getBottomX(), column.getBottomY(), null);
     }
 
     public void jump() {
-        if (gameOver) {
+        if (isGameOver) {
             //restart();
         }
 
-        if (!started) {
-            started = true;
-        } else if (!gameOver) {
+        if (!isGameStarted) {
+            isGameStarted = true;
+        } else if (!isGameOver) {
             if(yMotion > 0) {
                 yMotion = 0;
             }
@@ -101,8 +101,8 @@ public class FlappyBird implements ActionListener, MouseListener {
     }
 
     public void restart() {
-        bird.x = WIDTH / 2 - 25;
-        bird.y = HEIGHT / 2 - 25;
+        bird.setX( WIDTH / 2 - 25);
+        bird.setY( HEIGHT / 2 - 25);
         columns.clear();
         yMotion = 0;
         score = 0;
@@ -110,7 +110,7 @@ public class FlappyBird implements ActionListener, MouseListener {
         addColumn(true);
         addColumn(true);
 
-        gameOver = false;
+        isGameOver = false;
     }
 
     @Override
@@ -118,16 +118,16 @@ public class FlappyBird implements ActionListener, MouseListener {
         int speed = 7;
         ticks++;
 
-        if(gameOver) {
+        if(isGameOver) {
             speed = 0;
         }
 
-        if (started) {
+        if (isGameStarted) {
 
             for (int i = 0; i < columns.size(); i++) {
                 Column column = columns.get(i);
-                column.x -= speed;
-                column.bottomX -= speed;
+                column.setX(column.getX() - speed);
+                column.setBottomX( column.getBottomX() - speed );
             }
 
             if (ticks % 2 == 0 && yMotion < 15) {
@@ -138,7 +138,7 @@ public class FlappyBird implements ActionListener, MouseListener {
             for (int i = 0; i < columns.size(); i++) {
                 Column column = columns.get(i);
 
-                if (column.x + column.width < 0) {
+                if (column.getX() + column.getWidth() < 0) {
                     columns.remove(column);
 
                     /*if (column.y == 0) {
@@ -151,23 +151,23 @@ public class FlappyBird implements ActionListener, MouseListener {
                 }
             }
 
-            bird.y += yMotion;
+            bird.setY(bird.getY() + yMotion);
 
             for (Column column : columns) {
 
-                int colCenter = column.x + column.width / 2;
-                int birdCenter = bird.x + bird.width / 2;
+                int colCenter = column.getX() + column.getWidth() / 2;
+                int birdCenter = bird.getX() + bird.getWidth() / 2;
 
-                if (birdCenter >= colCenter && column.canGivePoint) {
-                    column.canGivePoint = false;
+                if (birdCenter >= colCenter && column.isCanGivePoint()) {
+                    column.setCanGivePoint(false);
                     score++;
                 }
 
-                Rectangle birdRec = new Rectangle(bird.x, bird.y, bird.width, bird.height);
-                Rectangle columnRec = new Rectangle(column.x, column.y, column.width, column.height);
-                Rectangle columnBottomRec = new Rectangle(column.bottomX, column.bottomY, column.width, column.height);
+                Rectangle birdRec = new Rectangle(bird.getX(), bird.getY(), bird.getWidth(), bird.getHeight());
+                Rectangle columnRec = new Rectangle(column.getX(), column.getY(), column.getWidth(), column.getHeight());
+                Rectangle columnBottomRec = new Rectangle(column.getBottomX(), column.getBottomY(), column.getWidth(), column.getHeight());
                 if (columnRec.intersects(birdRec) || columnBottomRec.intersects(birdRec)) {
-                    gameOver = true;
+                    isGameOver = true;
 
                     /*if (bird.x <= column.x) {
                         bird.x = column.x - bird.width;
@@ -183,12 +183,12 @@ public class FlappyBird implements ActionListener, MouseListener {
                 }
             }
 
-            if (bird.y > HEIGHT - 115 - bird.height || bird.y < 0) {
-                gameOver = true;
+            if (bird.getY() > HEIGHT - 115 - bird.getHeight() || bird.getY() < 0) {
+                isGameOver = true;
             }
 
-            if(bird.y + yMotion >= HEIGHT - 115 - bird.height) {
-                bird.y = HEIGHT - 115 - bird.height;
+            if(bird.getY() + yMotion >= HEIGHT - 115 - bird.getHeight()) {
+                bird.setY(HEIGHT - 115 - bird.getHeight());
             }
         }
 
@@ -202,7 +202,7 @@ public class FlappyBird implements ActionListener, MouseListener {
             paintColumn(g, column);
         }
 
-        g.drawImage(bird.image, bird.x, bird.y, null);
+        g.drawImage(bird.getImage(), bird.getX(), bird.getY(), null);
 
         g.drawImage(ground, 0, HEIGHT - 115, null);
 
@@ -220,11 +220,11 @@ public class FlappyBird implements ActionListener, MouseListener {
         g.setColor(Color.white);
         g.setFont(scoreFont);
 
-        if (!started) {
+        if (!isGameStarted) {
             g.drawString("Click to start!", 50, HEIGHT / 2 - 50);
         }
 
-        if (gameOver) {
+        if (isGameOver) {
             g.setFont(bestFont);
             g.drawImage(new ImageIcon("src/images/scoreBoard.png").getImage(), WIDTH/2-108/2, HEIGHT/2-115-40, null);
             g.drawString(String.valueOf(score), 230, 235);
@@ -232,7 +232,7 @@ public class FlappyBird implements ActionListener, MouseListener {
             g.drawImage(new ImageIcon("src/images/restart.png").getImage(), WIDTH/2 - 137/2, HEIGHT/2 + 10, null);
         }
 
-        if(!gameOver && started) {
+        if(!isGameOver && isGameStarted) {
             g.drawString(String.valueOf(score), WIDTH / 2 - 25, 100);
         }
     }
@@ -261,7 +261,7 @@ public class FlappyBird implements ActionListener, MouseListener {
     @Override
     public void mouseClicked(MouseEvent e) {
         jump();
-        if (gameOver) {
+        if (isGameOver) {
             PointerInfo pointerInfo = MouseInfo.getPointerInfo();
             Point p = pointerInfo.getLocation();
             if (p.x > (WIDTH/2 - 137/2 + 7) && p.x < (WIDTH/2 - 137/2 + 142) && p.y > (HEIGHT/2 + 10 + 30) && p.y < (HEIGHT/2 + 10 + 79)) {
