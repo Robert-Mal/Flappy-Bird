@@ -10,27 +10,76 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
+/**
+ * <h1>Flappy bird!</h1>
+ * The Flappy Bird game implements an application that
+ * allows you to play video game.
+ * <p>
+ * Just operate by left mouse clicking and enjoy this wonderful content
+ * FlappyBird class implements ActionListener and MouseListener, it allow
+ * user to communicate with game.
+ * @author  Robert Małek, Bartosz Dymański, Dominik Pająk
+ * @version 1.0
+ * @since   09.06.2021
+ */
 
 public class FlappyBird implements ActionListener, MouseListener {
+
+    /**
+     variable defines FlappyBird object
+     */
     public static FlappyBird flappyBird;
 
+    /**
+     variable defines Setting object
+     */
     public Settings settings;
 
+    /**
+     variable defines Renderer object
+     */
     public Renderer renderer;
 
+    /**
+     variables define int value of ticks, yMotion and score
+     */
     public int ticks, yMotion, score;
 
+    /**
+     variable defines ArrayList of Column objects
+     */
     public ArrayList<Column> columns;
 
+    /**
+     variable defines Random object
+     */
     public Random rand;
 
+    /**
+     variables define boolean value, when gameOver is set to true, game is stopped and scoreboard popup, started set on
+     true means, that game is running.
+     */
     public boolean gameOver, started;
 
+    /**
+     variable defines Image object of background and ground
+     */
     private final Image background, ground;
 
+    /**
+     variable defines Bird object
+     */
     private final Bird bird;
 
+    /**
+     variable defines Column object
+     */
     private final Column columnTemp;
+
+    /**
+     * Constructs a <code>FlappyBird</code> object which is rendering while game is running, constructor sets other
+     * objects into game like background, column, bird, also render them and sets their values.
+     */
 
     public FlappyBird() {
         JFrame jFrame = new JFrame();
@@ -64,9 +113,18 @@ public class FlappyBird implements ActionListener, MouseListener {
         timer.start();
     }
 
+    /**
+     * <code>main</code> object create flappyBird object.
+     */
+
     public static void main(String[] args) {
         flappyBird = new FlappyBird();
     }
+
+    /**
+     * Function add one column into interface, when param is declared as true
+     * @param start: boolean value represent if column should be printed
+     */
 
     public void addColumn(boolean start) {
         int height = rand.nextInt(250) - 250;
@@ -78,12 +136,26 @@ public class FlappyBird implements ActionListener, MouseListener {
         }
     }
 
+    /**
+     * Function sets two column objects into Graphics representation, includes column type (pipeTop or pipeBottom),
+     * column x and y value
+     * @param g: specified graphics object
+     * @param column: specified column object
+     */
+
     public void paintColumn(Graphics g, Column column) {
         g.drawImage(column.pipeTop, column.x, column.y, null);
         g.drawImage(column.pipeBottom, column.bottomX, column.bottomY, null);
     }
 
+    /**
+     * Function jump is called when player make mouse-click interaction with interface, then our game is started
+     */
+
     public void jump() {
+        if (gameOver) {
+            restart();
+        }
         if (!started) {
             started = true;
         } else if (!gameOver) {
@@ -94,6 +166,10 @@ public class FlappyBird implements ActionListener, MouseListener {
             yMotion -= 10;
         }
     }
+
+    /**
+     * Function restart sets default values of all objects included in project
+     */
 
     public void restart() {
         bird.x = settings.WIDTH / 2 - 25;
@@ -107,6 +183,13 @@ public class FlappyBird implements ActionListener, MouseListener {
 
         gameOver = false;
     }
+
+    /**
+     * Function actionPerformed control game mechanics, if gameOver value is set to true, game is stopped.
+     * Otherwise game is running and method assign speed and ticks to columns, removing them if they are out of frame
+     * and defines crash hitboxes
+     * @param e: Semantic event which indicates that a component-defined action occurred
+     */
 
     @Override
     public void actionPerformed(ActionEvent e) {
@@ -173,6 +256,13 @@ public class FlappyBird implements ActionListener, MouseListener {
         renderer.repaint();
     }
 
+    /**
+     * Method repainting objects while loop is running and generate interface menu with score when game loop is break
+     * @param g graphics type object
+     * @throws IOException
+     *      <br>throw when function failed attempt to read file stream<br>
+     */
+
     public void repaint(Graphics g) throws IOException {
         g.drawImage(background, 0,0, null);
 
@@ -215,6 +305,11 @@ public class FlappyBird implements ActionListener, MouseListener {
         }
     }
 
+    /**
+     * Method scans score file, if achieved score is better then value placed in file, function set our score as best
+     * @return int value - best achieved score
+     */
+
     public int checkBestScore() {
         String filePath = settings.SCORE_FILE;
         File file = new File(filePath);
@@ -236,6 +331,11 @@ public class FlappyBird implements ActionListener, MouseListener {
         return bestScore;
     }
 
+    /**
+     * Method activates when mouse is clicked, function starts jump method. If gameover boolean value is set to true, restart
+     * button is activate and ready to click
+     */
+
     @Override
     public void mouseClicked(MouseEvent e) {
         jump();
@@ -248,21 +348,33 @@ public class FlappyBird implements ActionListener, MouseListener {
         }
     }
 
+    /**
+     * Method activates when mouse is pressed
+     */
     @Override
     public void mousePressed(MouseEvent e) {
 
     }
 
+    /**
+     * Method activates when mouse is released
+     */
     @Override
     public void mouseReleased(MouseEvent e) {
 
     }
 
+    /**
+     * Method activates when mouse is entered
+     */
     @Override
     public void mouseEntered(MouseEvent e) {
 
     }
 
+    /**
+     * Method activates when mouse is exited
+     */
     @Override
     public void mouseExited(MouseEvent e) {
 
