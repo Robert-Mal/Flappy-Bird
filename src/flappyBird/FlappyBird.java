@@ -14,7 +14,7 @@ import java.util.Scanner;
 public class FlappyBird implements ActionListener, MouseListener {
     public static FlappyBird flappyBird;
 
-    public final int WIDTH = 480, HEIGHT = 640;
+    public Settings settings;
 
     public Renderer renderer;
 
@@ -30,32 +30,33 @@ public class FlappyBird implements ActionListener, MouseListener {
 
     private final Bird bird;
 
-    private Column columnTemp;
+    private final Column columnTemp;
 
     public FlappyBird() {
         JFrame jFrame = new JFrame();
         Timer timer = new Timer(20, this);
 
+        settings = new Settings();
         renderer = new Renderer();
         rand = new Random();
 
-        ImageIcon imageIcon = new ImageIcon("src/images/background.png");
+        ImageIcon imageIcon = new ImageIcon(settings.BACKGROUND_IMAGE);
         background = imageIcon.getImage();
-        imageIcon = new ImageIcon("src/images/ground.png");
+        imageIcon = new ImageIcon(settings.GROUND_IMAGE);
         ground = imageIcon.getImage();
 
         bird = new Bird();
         columnTemp = new Column(1,1);
 
         jFrame.add(renderer);
-        jFrame.setSize(WIDTH, HEIGHT);
+        jFrame.setSize(settings.WIDTH, settings.HEIGHT);
         jFrame.setVisible(true);
         jFrame.setResizable(false);
         jFrame.setTitle("Flappy Bird");
         jFrame.addMouseListener(this);
         jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
-        columns = new ArrayList<Column>();
+        columns = new ArrayList<>();
 
         addColumn(true);
         addColumn(true);
@@ -71,23 +72,18 @@ public class FlappyBird implements ActionListener, MouseListener {
         int height = rand.nextInt(250) - 250;
 
         if (start) {
-            columns.add(new Column(WIDTH + columnTemp.width + columns.size() * 300, height));
+            columns.add(new Column(settings.WIDTH + columnTemp.width + columns.size() * 300, height));
         } else {
             columns.add(new Column(columns.get(columns.size() - 1).x + 300, height));
         }
-
     }
 
     public void paintColumn(Graphics g, Column column) {
-        g.drawImage(column.image, column.x, column.y, null);
-        g.drawImage(column.rotatedImage, column.bottomX, column.bottomY, null);
+        g.drawImage(column.pipeTop, column.x, column.y, null);
+        g.drawImage(column.pipeBottom, column.bottomX, column.bottomY, null);
     }
 
     public void jump() {
-        if (gameOver) {
-            //restart();
-        }
-
         if (!started) {
             started = true;
         } else if (!gameOver) {
@@ -97,12 +93,11 @@ public class FlappyBird implements ActionListener, MouseListener {
 
             yMotion -= 10;
         }
-
     }
 
     public void restart() {
-        bird.x = WIDTH / 2 - 25;
-        bird.y = HEIGHT / 2 - 25;
+        bird.x = settings.WIDTH / 2 - 25;
+        bird.y = settings.HEIGHT / 2 - 25;
         columns.clear();
         yMotion = 0;
         score = 0;
@@ -115,7 +110,7 @@ public class FlappyBird implements ActionListener, MouseListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        int speed = 7;
+        int speed = settings.SPEED;
         ticks++;
 
         if(gameOver) {
@@ -124,8 +119,7 @@ public class FlappyBird implements ActionListener, MouseListener {
 
         if (started) {
 
-            for (int i = 0; i < columns.size(); i++) {
-                Column column = columns.get(i);
+            for (Column column : columns) {
                 column.x -= speed;
                 column.bottomX -= speed;
             }
@@ -140,10 +134,6 @@ public class FlappyBird implements ActionListener, MouseListener {
 
                 if (column.x + column.width < 0) {
                     columns.remove(column);
-
-                    /*if (column.y == 0) {
-                        addColumn(false);
-                    }*/
 
                     if (columns.size() < 2) {
                         addColumn(false);
@@ -168,27 +158,15 @@ public class FlappyBird implements ActionListener, MouseListener {
                 Rectangle columnBottomRec = new Rectangle(column.bottomX, column.bottomY, column.width, column.height);
                 if (columnRec.intersects(birdRec) || columnBottomRec.intersects(birdRec)) {
                     gameOver = true;
-
-                    /*if (bird.x <= column.x) {
-                        bird.x = column.x - bird.width;
-                    }
-                    else {
-                        if (column.y != 0) {
-                            bird.y = column.y - bird.height;
-                        } else if (bird.y < column.height) {
-                            bird.y = column.height;
-                        }
-                    }*/
-
                 }
             }
 
-            if (bird.y > HEIGHT - 115 - bird.height || bird.y < 0) {
+            if (bird.y > settings.HEIGHT - 115 - bird.height || bird.y < 0) {
                 gameOver = true;
             }
 
-            if(bird.y + yMotion >= HEIGHT - 115 - bird.height) {
-                bird.y = HEIGHT - 115 - bird.height;
+            if(bird.y + yMotion >= settings.HEIGHT - 115 - bird.height) {
+                bird.y = settings.HEIGHT - 115 - bird.height;
             }
         }
 
@@ -204,12 +182,12 @@ public class FlappyBird implements ActionListener, MouseListener {
 
         g.drawImage(bird.image, bird.x, bird.y, null);
 
-        g.drawImage(ground, 0, HEIGHT - 115, null);
+        g.drawImage(ground, 0, settings.HEIGHT - 115, null);
 
         Font scoreFont = null;
         Font bestFont = null;
         try {
-            InputStream is = new BufferedInputStream(new FileInputStream("src/font/flappy-font.ttf"));
+            InputStream is = new BufferedInputStream(new FileInputStream(settings.FONT));
             Font font = Font.createFont(Font.TRUETYPE_FONT, is);
             scoreFont = font.deriveFont(Font.PLAIN, 50);
             bestFont = font.deriveFont(Font.PLAIN, 35);
@@ -221,24 +199,24 @@ public class FlappyBird implements ActionListener, MouseListener {
         g.setFont(scoreFont);
 
         if (!started) {
-            g.drawString("Click to start!", 50, HEIGHT / 2 - 50);
+            g.drawString("Click to start!", 50, settings.HEIGHT / 2 - 50);
         }
 
         if (gameOver) {
             g.setFont(bestFont);
-            g.drawImage(new ImageIcon("src/images/scoreBoard.png").getImage(), WIDTH/2-108/2, HEIGHT/2-115-40, null);
+            g.drawImage(new ImageIcon(settings.SCORE_BOARD_IMAGE).getImage(), settings.WIDTH/2-108/2, settings.HEIGHT/2-115-40, null);
             g.drawString(String.valueOf(score), 230, 235);
             g.drawString(String.valueOf(checkBestScore()), 230, 287);
-            g.drawImage(new ImageIcon("src/images/restart.png").getImage(), WIDTH/2 - 137/2, HEIGHT/2 + 10, null);
+            g.drawImage(new ImageIcon(settings.RESTART_IMAGE).getImage(), settings.WIDTH/2 - 137/2, settings.HEIGHT/2 + 10, null);
         }
 
         if(!gameOver && started) {
-            g.drawString(String.valueOf(score), WIDTH / 2 - 25, 100);
+            g.drawString(String.valueOf(score), settings.WIDTH / 2 - 25, 100);
         }
     }
 
     public int checkBestScore() {
-        String filePath = "src/flappyBird/bestScore.txt";
+        String filePath = settings.SCORE_FILE;
         File file = new File(filePath);
         int bestScore = 0;
         try {
@@ -264,7 +242,7 @@ public class FlappyBird implements ActionListener, MouseListener {
         if (gameOver) {
             PointerInfo pointerInfo = MouseInfo.getPointerInfo();
             Point p = pointerInfo.getLocation();
-            if (p.x > (WIDTH/2 - 137/2 + 7) && p.x < (WIDTH/2 - 137/2 + 142) && p.y > (HEIGHT/2 + 10 + 30) && p.y < (HEIGHT/2 + 10 + 79)) {
+            if (p.x > (settings.WIDTH/2 - 137/2 + 7) && p.x < (settings.WIDTH/2 - 137/2 + 142) && p.y > (settings.HEIGHT/2 + 10 + 30) && p.y < (settings.HEIGHT/2 + 10 + 79)) {
                 restart();
             }
         }

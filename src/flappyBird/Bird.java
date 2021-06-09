@@ -6,7 +6,7 @@ import java.awt.*;
 public class Bird{
     public final int width;
     public final int height;
-    public final Image image = new ImageIcon("src/images/bird.png").getImage();
+    public final Image image = new ImageIcon(new Settings().BIRD_IMAGE).getImage();
     public int x, y;
 
     public Bird() {
